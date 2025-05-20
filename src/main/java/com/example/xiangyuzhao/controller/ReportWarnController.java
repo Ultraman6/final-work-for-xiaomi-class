@@ -1,5 +1,6 @@
 package com.example.xiangyuzhao.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.xiangyuzhao.dto.req.BatterySignalUploadReq;
 import com.example.xiangyuzhao.dto.resp.BaseResponse;
 import com.example.xiangyuzhao.dto.resp.BatteryWarnResp;
@@ -16,9 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 电池信号上报与预警控制器
@@ -117,7 +119,7 @@ public class ReportWarnController {
                             }
                             
                             // 解析规则
-                            com.alibaba.fastjson.JSONObject ruleObj = (com.alibaba.fastjson.JSONObject) warnRuleService.parseRule(rule.getWarnId(), vehicle.getBatteryType());
+                            JSONObject ruleObj = JSON.parseObject(rule.getRule());
                             if (ruleObj == null) {
                                 log.warn("规则解析失败，规则ID: {}", rule.getWarnId());
                                 continue;
@@ -135,12 +137,10 @@ public class ReportWarnController {
                             }
                             
                             // 创建仅包含当前规则所需字段的信号数据
-                            Map<String, Object> ruleSpecificSignalData = new HashMap<>();
-                            ruleSpecificSignalData.put(leftOperand, remainingSignalData.get(leftOperand));
-                            ruleSpecificSignalData.put(rightOperand, remainingSignalData.get(rightOperand));
-                            
-                            // 转换为JSON字符串
-                            String ruleSpecificSignalJson = com.alibaba.fastjson.JSON.toJSONString(ruleSpecificSignalData);
+                            String ruleSpecificSignalJson = com.alibaba.fastjson.JSON.toJSONString(
+                                    Stream.of(leftOperand, rightOperand)
+                                            .collect(Collectors.toMap(k -> k, remainingSignalData::get))
+                            );
                             log.info("规则ID: {}, 提取的信号数据: {}", rule.getWarnId(), ruleSpecificSignalJson);
                             
                             // 为匹配的规则创建信号对象
@@ -291,9 +291,7 @@ public class ReportWarnController {
                     Map<String, Object> parsedSignal = batterySignalService.parseSignalData(signalJsonString);
                     // 创建可修改的信号数据副本
                     Map<String, Object> remainingSignalData = new HashMap<>(parsedSignal);
-                    
-                    // 用于收集创建的信号对象
-                    List<BatterySignal> createdSignals = new ArrayList<>();
+
                     // 跟踪已处理的规则ID，防止重复处理
                     Set<Integer> processedRuleIds = new HashSet<>();
                     
@@ -307,7 +305,8 @@ public class ReportWarnController {
                             }
                             
                             // 解析规则
-                            com.alibaba.fastjson.JSONObject ruleObj = (com.alibaba.fastjson.JSONObject) warnRuleService.parseRule(rule.getWarnId(), vehicle.getBatteryType());
+                            JSONObject ruleObj = JSON.parseObject(rule.getRule());
+                            // JSONObject ruleObj = (com.alibaba.fastjson.JSONObject) warnRuleService.parseRule(rule.getWarnId(), vehicle.getBatteryType());
                             if (ruleObj == null) {
                                 log.warn("规则解析失败，规则ID: {}", rule.getWarnId());
                                 continue;
@@ -323,12 +322,17 @@ public class ReportWarnController {
                                         rule.getWarnId(), leftOperand, rightOperand);
                                 continue;
                             }
-                            
+
+                            String ruleSpecificSignalJson = com.alibaba.fastjson.JSON.toJSONString(
+                                    Stream.of(leftOperand, rightOperand)
+                                            .collect(Collectors.toMap(k -> k, remainingSignalData::get))
+                            );
+
                             // 为匹配的规则创建信号对象
                             BatterySignal signal = new BatterySignal(
                                 req.getCarId(),
                                 rule.getWarnId(), // 使用规则的ID
-                                signalJsonString,
+                                ruleSpecificSignalJson,
                                 req.getSignalTime() != null ? req.getSignalTime() : new Date()
                             );
                             

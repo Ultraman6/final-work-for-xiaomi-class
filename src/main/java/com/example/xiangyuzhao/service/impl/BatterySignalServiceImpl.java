@@ -168,17 +168,41 @@ public class BatterySignalServiceImpl extends ServiceImpl<BatterySignalMapper, B
             return false;
         }
         
-        // 获取信号
-        BatterySignal signal = getById(id);
-        if (signal == null) {
-            return false;
-        }
+        // 生成分布式锁的key
+        String lockKey = CACHE_PREFIX + ":lock:update:" + id;
         
-        // 设置为已处理
-        signal.setProcessed(true);
-        signal.setProcessTime(new Date());
-        
-        return updateById(signal);
+        // 使用分布式锁执行更新操作
+        return cacheService.executeWithLock(
+            lockKey,
+            1000,  // 等待获取锁的时间（毫秒）
+            5000,  // 持有锁的时间（毫秒）
+            () -> {
+                // 获取信号
+                BatterySignal signal = getById(id);
+                if (signal == null) {
+                    return false;
+                }
+                
+                // 设置为已处理
+                signal.setProcessed(true);
+                signal.setProcessTime(new Date());
+                
+                // 更新记录
+                boolean result = batterySignalMapper.updateById(signal) > 0;
+                
+                // 清除缓存
+                if (result) {
+                    // 清除信号缓存
+                    String cacheKey = cacheService.generateKey(CACHE_PREFIX, id.toString());
+                    cacheService.deleteWithDelay(cacheKey);
+                    
+                    // 清除车辆相关缓存
+                    cleanCache(signal.getCarId());
+                }
+                
+                return result;
+            }
+        );
     }
 
     @Override
@@ -443,35 +467,113 @@ public class BatterySignalServiceImpl extends ServiceImpl<BatterySignalMapper, B
 
     @Override
     public boolean markSignalProcessing(Long signalId) {
-        try {
-            int result = baseMapper.markSignalProcessing(signalId);
-            return result > 0;
-        } catch (Exception e) {
-            log.error("标记信号为处理中状态失败，signalId={}", signalId, e);
+        if (signalId == null) {
             return false;
         }
+        
+        String lockKey = CACHE_PREFIX + ":lock:process:" + signalId;
+        
+        return cacheService.executeWithLock(
+            lockKey,
+            1000,
+            5000,
+            () -> {
+                try {
+                    int result = baseMapper.markSignalProcessing(signalId);
+                    
+                    if (result > 0) {
+                        // 清除相关缓存
+                        String cacheKey = cacheService.generateKey(CACHE_PREFIX, signalId.toString());
+                        cacheService.deleteWithDelay(cacheKey);
+                        
+                        // 查询信号以获取carId
+                        BatterySignal signal = getById(signalId);
+                        if (signal != null) {
+                            cleanCache(signal.getCarId());
+                        }
+                    }
+                    
+                    return result > 0;
+                } catch (Exception e) {
+                    log.error("标记信号为处理中状态失败，signalId={}", signalId, e);
+                    return false;
+                }
+            }
+        );
     }
     
     @Override
     public boolean resetSignalStatus(Long signalId) {
-        try {
-            int result = baseMapper.resetSignalStatus(signalId);
-            return result > 0;
-        } catch (Exception e) {
-            log.error("重置信号状态失败，signalId={}", signalId, e);
+        if (signalId == null) {
             return false;
         }
+        
+        String lockKey = CACHE_PREFIX + ":lock:reset:" + signalId;
+        
+        return cacheService.executeWithLock(
+            lockKey,
+            1000,
+            5000,
+            () -> {
+                try {
+                    int result = baseMapper.resetSignalStatus(signalId);
+                    
+                    if (result > 0) {
+                        // 清除相关缓存
+                        String cacheKey = cacheService.generateKey(CACHE_PREFIX, signalId.toString());
+                        cacheService.deleteWithDelay(cacheKey);
+                        
+                        // 查询信号以获取carId
+                        BatterySignal signal = getById(signalId);
+                        if (signal != null) {
+                            cleanCache(signal.getCarId());
+                        }
+                    }
+                    
+                    return result > 0;
+                } catch (Exception e) {
+                    log.error("重置信号状态失败，signalId={}", signalId, e);
+                    return false;
+                }
+            }
+        );
     }
     
     @Override
     public boolean markSignalProcessed(Long signalId) {
-        try {
-            int result = baseMapper.markSignalProcessed(signalId);
-            return result > 0;
-        } catch (Exception e) {
-            log.error("标记信号为处理完成失败，signalId={}", signalId, e);
+        if (signalId == null) {
             return false;
         }
+        
+        String lockKey = CACHE_PREFIX + ":lock:complete:" + signalId;
+        
+        return cacheService.executeWithLock(
+            lockKey,
+            1000,
+            5000,
+            () -> {
+                try {
+                    int result = baseMapper.markSignalProcessed(signalId);
+                    
+                    if (result > 0) {
+                        // 清除相关缓存
+                        String cacheKey = cacheService.generateKey(CACHE_PREFIX, signalId.toString());
+                        cacheService.deleteWithDelay(cacheKey);
+                        
+                        // 查询信号以获取carId
+                        BatterySignal signal = getById(signalId);
+                        if (signal != null) {
+                            cleanCache(signal.getCarId());
+                        }
+                    }
+                    
+                    return result > 0;
+                } catch (Exception e) {
+                    log.error("标记信号为处理完成失败，signalId={}", signalId, e);
+                    return false;
+                }
+            }
+        );
     }
     
     @Override

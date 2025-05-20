@@ -220,7 +220,7 @@ public class BatterySignalConsumer {
             }
             
             // 检查信号状态 - 只处理"处理中"的信号
-            if (!signal.getProcessed() || (signal.getProcessed() && signal.getProcessTime() != null)) {
+            if (!signal.getProcessed() || signal.getProcessTime() != null) {
                 // 信号未标记为处理中，或已处理完成
                 log.info("Signal {} status not eligible for processing: processed={}, processTime={}", 
                         message.getSignalId(), signal.getProcessed(), signal.getProcessTime());

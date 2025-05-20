@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS `warn_rule` (
   `rule` text NOT NULL COMMENT '预警规则JSON',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_rule_battery` (`warn_id`,`battery_type`) COMMENT '规则ID和电池类型唯一',
-  KEY `idx_warn_id` (`warn_id`) COMMENT '规则ID索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预警规则表';
 
 -- 电池信号表
