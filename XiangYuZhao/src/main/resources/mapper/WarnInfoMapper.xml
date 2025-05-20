@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.xiangyuzhao.mapper.WarnInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.xiangyuzhao.entity.WarnInfo">
+        <id column="id" property="id" />
+        <result column="car_id" property="carId" />
+        <result column="warn_id" property="warnId" />
+        <result column="warn_name" property="warnName" />
+        <result column="warn_level" property="warnLevel" />
+        <result column="signal_id" property="signalId" />
+        <result column="warn_time" property="warnTime" />
+        <result column="signal_time" property="signalTime" />
+    </resultMap>
+    
+    <!-- Find all warnings for a specific vehicle -->
+    <select id="findByCarId" parameterType="integer" resultMap="BaseResultMap">
+        SELECT * FROM warn_info
+        WHERE car_id = #{carId}
+        ORDER BY warn_time DESC
+    </select>
+    
+    <!-- Find warnings for a vehicle filtered by level -->
+    <select id="findByCarIdAndWarnLevel" resultMap="BaseResultMap">
+        SELECT * FROM warn_info
+        WHERE car_id = #{carId}
+        AND warn_level = #{warnLevel}
+        ORDER BY warn_time DESC
+    </select>
+    
+    <!-- Find warnings triggered by a specific warn rule -->
+    <select id="findByWarnId" parameterType="integer" resultMap="BaseResultMap">
+        SELECT * FROM warn_info
+        WHERE warn_id = #{warnId}
+        ORDER BY warn_time DESC
+    </select>
+    
+    <!-- Count the number of warnings for a vehicle -->
+    <select id="countWarningsByCarId" parameterType="integer" resultType="int">
+        SELECT COUNT(*) FROM warn_info
+        WHERE car_id = #{carId}
+    </select>
+    
+    <!-- Find warnings by signal ID -->
+    <select id="findBySignalId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM warn_info
+        WHERE signal_id = #{signalId}
+        ORDER BY warn_level ASC
+    </select>
+    
+    <!-- Find warnings with pagination -->
+    <select id="findWarningsWithPagination" resultMap="BaseResultMap">
+        SELECT * FROM warn_info
+        <where>
+            <if test="carId != null">
+                AND car_id = #{carId}
+            </if>
+            <if test="warnLevel != null">
+                AND warn_level = #{warnLevel}
+            </if>
+        </where>
+        ORDER BY warn_time DESC
+    </select>
+    
+    <!-- Get statistics of warnings by level -->
+    <select id="getWarningStatsByLevel" resultType="java.util.HashMap">
+        SELECT warn_level, COUNT(*) as count
+        FROM warn_info
+        WHERE warn_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY warn_level
+        ORDER BY warn_level ASC
+    </select>
+    
+    <!-- Batch insert warn info records -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO warn_info (car_id, warn_id, warn_name, warn_level, signal_id, warn_time, signal_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.carId},
+            #{item.warnId},
+            #{item.warnName},
+            #{item.warnLevel},
+            #{item.signalId},
+            #{item.warnTime},
+            #{item.signalTime}
+            )
+        </foreach>
+    </insert>
+    
+    <!-- Define custom SQL operations here if needed -->
+    
+</mapper> 

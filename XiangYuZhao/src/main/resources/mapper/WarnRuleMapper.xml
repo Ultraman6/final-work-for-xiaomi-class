@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.xiangyuzhao.mapper.WarnRuleMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.xiangyuzhao.entity.WarnRule">
+        <id column="id" property="id" />
+        <result column="warn_id" property="warnId" />
+        <result column="warn_name" property="warnName" />
+        <result column="battery_type" property="batteryType" />
+        <result column="rule" property="rule" />
+    </resultMap>
+    
+    <!-- Find rule by warn ID and battery type -->
+    <select id="findByWarnIdAndBatteryType" resultMap="BaseResultMap">
+        SELECT * FROM warn_rule 
+        WHERE warn_id = #{warnId} AND battery_type = #{batteryType}
+    </select>
+    
+    <!-- Find all rules for a specific battery type -->
+    <select id="findAllRulesByBatteryType" parameterType="string" resultMap="BaseResultMap">
+        SELECT * FROM warn_rule 
+        WHERE battery_type = #{batteryType}
+        ORDER BY warn_id ASC
+    </select>
+    
+    <!-- Find all rules by warn ID -->
+    <select id="findByWarnId" parameterType="integer" resultMap="BaseResultMap">
+        SELECT * FROM warn_rule 
+        WHERE warn_id = #{warnId}
+        ORDER BY battery_type ASC
+    </select>
+    
+    <!-- Update rule JSON definition -->
+    <update id="updateRule">
+        UPDATE warn_rule
+        SET rule = #{rule}
+        WHERE id = #{id}
+    </update>
+    
+    <!-- Find rule by name and battery type -->
+    <select id="findByWarnNameAndBatteryType" resultMap="BaseResultMap">
+        SELECT * FROM warn_rule
+        WHERE warn_name = #{warnName} AND battery_type = #{batteryType}
+    </select>
+    
+    <!-- Define custom SQL operations here if needed -->
+    
+</mapper> 

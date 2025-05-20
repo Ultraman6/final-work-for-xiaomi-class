@@ -1,0 +1,1326 @@
+openapi: 3.0.0
+info:
+  title: 车辆电池监控系统 API
+  description: 车辆电池监控系统的API接口文档
+  version: 1.0.0
+  contact:
+    name: 系统管理员
+
+servers:
+  - url: http://localhost:8080
+    description: 本地开发服务器
+
+tags:
+  - name: vehicle
+    description: 车辆管理接口
+  - name: batterysignal
+    description: 电池信号管理接口
+  - name: warnrule
+    description: 预警规则管理接口
+  - name: warninfo
+    description: 预警信息管理接口
+  - name: reportwarn
+    description: 报告与预警接口
+
+paths:
+  /api/vehicle:
+    get:
+      tags:
+        - vehicle
+      summary: 查询车辆
+      description: 查询车辆信息，支持分页和动态过滤条件
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: 每页大小
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: carId
+          in: query
+          description: 车辆ID
+          required: false
+          schema:
+            type: integer
+        - name: vid
+          in: query
+          description: 车辆唯一标识
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: 车辆名称
+          required: false
+          schema:
+            type: string
+        - name: name_like
+          in: query
+          description: 车辆名称(模糊匹配)
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: 车辆状态
+          required: false
+          schema:
+            type: integer
+        - name: createTime_gt
+          in: query
+          description: 创建时间大于
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createTime_lt
+          in: query
+          description: 创建时间小于
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: startTime
+          in: query
+          description: 起始时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          description: 结束时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehiclePageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - vehicle
+      summary: 新增车辆
+      description: 新增一个或多个车辆信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleCreateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - vehicle
+      summary: 更新车辆
+      description: 更新一个或多个车辆信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleUpdateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - vehicle
+      summary: 删除车辆
+      description: 删除一个或多个车辆信息
+      parameters:
+        - name: ids
+          in: query
+          description: 车辆ID列表，多个ID使用逗号分隔
+          required: true
+          schema:
+            type: string
+            example: "1,2,3"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/batterysignal:
+    get:
+      tags:
+        - batterysignal
+      summary: 查询电池信号
+      description: 查询电池信号信息，支持分页和动态过滤条件
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: 每页大小
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: carId
+          in: query
+          description: 车辆ID
+          required: false
+          schema:
+            type: integer
+        - name: warnId
+          in: query
+          description: 预警ID
+          required: false
+          schema:
+            type: integer
+        - name: processed
+          in: query
+          description: 是否已处理
+          required: false
+          schema:
+            type: boolean
+        - name: signalTime_gt
+          in: query
+          description: 信号时间大于
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: signalTime_lt
+          in: query
+          description: 信号时间小于
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: startTime
+          in: query
+          description: 起始时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          description: 结束时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatterySignalPageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - batterysignal
+      summary: 新增电池信号
+      description: 新增一个或多个电池信号记录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/BatterySignalCreateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatterySignalListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - batterysignal
+      summary: 更新电池信号
+      description: 更新一个或多个电池信号记录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/BatterySignalUpdateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - batterysignal
+      summary: 删除电池信号
+      description: 删除一个或多个电池信号记录
+      parameters:
+        - name: ids
+          in: query
+          description: 电池信号ID列表，多个ID使用逗号分隔
+          required: true
+          schema:
+            type: string
+            example: "1,2,3"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/warnrule:
+    get:
+      tags:
+        - warnrule
+      summary: 查询预警规则
+      description: 查询预警规则信息，支持分页和动态过滤条件
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: 每页大小
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: name
+          in: query
+          description: 规则名称
+          required: false
+          schema:
+            type: string
+        - name: name_like
+          in: query
+          description: 规则名称(模糊匹配)
+          required: false
+          schema:
+            type: string
+        - name: level
+          in: query
+          description: 预警级别
+          required: false
+          schema:
+            type: integer
+        - name: enabled
+          in: query
+          description: 是否启用
+          required: false
+          schema:
+            type: boolean
+        - name: priority_gt
+          in: query
+          description: 优先级大于
+          required: false
+          schema:
+            type: integer
+        - name: priority_lt
+          in: query
+          description: 优先级小于
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarnRulePageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - warnrule
+      summary: 新增预警规则
+      description: 新增一个或多个预警规则
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarnRuleCreateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarnRuleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - warnrule
+      summary: 更新预警规则
+      description: 更新一个或多个预警规则
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarnRuleUpdateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - warnrule
+      summary: 删除预警规则
+      description: 删除一个或多个预警规则
+      parameters:
+        - name: ids
+          in: query
+          description: 预警规则ID列表，多个ID使用逗号分隔
+          required: true
+          schema:
+            type: string
+            example: "1,2,3"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/warninfo:
+    get:
+      tags:
+        - warninfo
+      summary: 查询预警信息
+      description: 查询预警信息，支持分页和动态过滤条件
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: 每页大小
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: carId
+          in: query
+          description: 车辆ID
+          required: false
+          schema:
+            type: integer
+        - name: warnId
+          in: query
+          description: 预警ID
+          required: false
+          schema:
+            type: integer
+        - name: signalId
+          in: query
+          description: 信号ID
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: warnLevel
+          in: query
+          description: 预警级别
+          required: false
+          schema:
+            type: integer
+        - name: handled
+          in: query
+          description: 是否已处理
+          required: false
+          schema:
+            type: boolean
+        - name: warnTime_gt
+          in: query
+          description: 预警时间大于
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: warnTime_lt
+          in: query
+          description: 预警时间小于
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: startTime
+          in: query
+          description: 起始时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          description: 结束时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarnInfoPageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - warninfo
+      summary: 新增预警信息
+      description: 新增一个或多个预警信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarnInfoCreateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarnInfoListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - warninfo
+      summary: 更新预警信息
+      description: 更新一个或多个预警信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarnInfoUpdateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - warninfo
+      summary: 删除预警信息
+      description: 删除一个或多个预警信息
+      parameters:
+        - name: ids
+          in: query
+          description: 预警信息ID列表，多个ID使用逗号分隔
+          required: true
+          schema:
+            type: string
+            example: "1,2,3"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/warn:
+    post:
+      tags:
+        - reportwarn
+      summary: 处理电池信号并返回预警
+      description: 上报电池信号并根据预警规则生成预警信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/BatterySignalUploadReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatteryWarnRespListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /api/report:
+    post:
+      tags:
+        - reportwarn
+      summary: 上报电池信号
+      description: 批量上报电池信号信息，不触发预警处理
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/BatterySignalUploadReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatterySignalListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /api/search:
+    get:
+      tags:
+        - reportwarn
+      summary: 查询预警信息
+      description: 根据条件查询车辆的预警信息
+      parameters:
+        - name: car_id
+          in: query
+          description: 车辆ID
+          required: true
+          schema:
+            type: integer
+        - name: warn_id
+          in: query
+          description: 预警ID
+          required: false
+          schema:
+            type: integer
+        - name: min_warn_time
+          in: query
+          description: 最小预警时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: max_warn_time
+          in: query
+          description: 最大预警时间
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: handled
+          in: query
+          description: 是否已处理
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarnInfoListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: 车辆不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: 状态码
+          example: 200
+        message:
+          type: string
+          description: 状态消息
+          example: "success"
+        data:
+          description: 返回数据
+          nullable: true
+      required:
+        - code
+        - message
+    
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: 'null'
+      example:
+        code: 400
+        message: "参数错误"
+        data: null
+    
+    BooleanResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: boolean
+      example:
+        code: 200
+        message: "success"
+        data: true
+    
+    PageInfo:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 总记录数
+        size:
+          type: integer
+          description: 每页大小
+        current:
+          type: integer
+          description: 当前页码
+        pages:
+          type: integer
+          description: 总页数
+        orders:
+          type: array
+          description: 排序字段
+          items:
+            type: object
+        optimizeCountSql:
+          type: boolean
+          description: 是否优化SQL
+        searchCount:
+          type: boolean
+          description: 是否查询总数
+    
+    # 车辆相关模型
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        carId:
+          type: integer
+          description: 车辆ID
+        vid:
+          type: string
+          description: 车辆唯一标识码
+        name:
+          type: string
+          description: 车辆名称
+        status:
+          type: integer
+          description: 车辆状态
+        createTime:
+          type: string
+          format: date-time
+          description: 创建时间
+        updateTime:
+          type: string
+          format: date-time
+          description: 更新时间
+    
+    VehicleCreateRequest:
+      type: object
+      properties:
+        carId:
+          type: integer
+          description: 车辆ID
+        vid:
+          type: string
+          description: 车辆唯一标识码
+        name:
+          type: string
+          description: 车辆名称
+        status:
+          type: integer
+          description: 车辆状态
+      required:
+        - carId
+    
+    VehicleUpdateRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        carId:
+          type: integer
+          description: 车辆ID
+        vid:
+          type: string
+          description: 车辆唯一标识码
+        name:
+          type: string
+          description: 车辆名称
+        status:
+          type: integer
+          description: 车辆状态
+      required:
+        - id
+    
+    VehiclePageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/PageInfo'
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/Vehicle'
+    
+    VehicleListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vehicle'
+    
+    # 电池信号相关模型
+    BatterySignal:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        carId:
+          type: integer
+          description: 车辆ID
+        warnId:
+          type: integer
+          description: 预警标识
+        signalData:
+          type: string
+          description: 信号数据（JSON格式）
+        signalTime:
+          type: string
+          format: date-time
+          description: 信号时间
+        processed:
+          type: boolean
+          description: 是否已处理
+        processTime:
+          type: string
+          format: date-time
+          description: 处理时间
+        createTime:
+          type: string
+          format: date-time
+          description: 创建时间
+    
+    BatterySignalCreateRequest:
+      type: object
+      properties:
+        carId:
+          type: integer
+          description: 车辆ID
+        warnId:
+          type: integer
+          description: 预警标识
+        signalData:
+          type: string
+          description: 信号数据（JSON格式）
+        signalTime:
+          type: string
+          format: date-time
+          description: 信号时间
+      required:
+        - carId
+        - warnId
+    
+    BatterySignalUpdateRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        carId:
+          type: integer
+          description: 车辆ID
+        warnId:
+          type: integer
+          description: 预警标识
+        signalData:
+          type: string
+          description: 信号数据（JSON格式）
+        signalTime:
+          type: string
+          format: date-time
+          description: 信号时间
+        processed:
+          type: boolean
+          description: 是否已处理
+      required:
+        - id
+    
+    BatterySignalPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/PageInfo'
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/BatterySignal'
+    
+    BatterySignalListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatterySignal'
+    
+    # 预警规则相关模型
+    WarnRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        name:
+          type: string
+          description: 规则名称
+        description:
+          type: string
+          description: 规则描述
+        condition:
+          type: string
+          description: 规则条件
+        level:
+          type: integer
+          description: 预警等级
+        enabled:
+          type: boolean
+          description: 是否启用
+        priority:
+          type: integer
+          description: 规则优先级
+        createTime:
+          type: string
+          format: date-time
+          description: 创建时间
+        updateTime:
+          type: string
+          format: date-time
+          description: 更新时间
+    
+    WarnRuleCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 规则名称
+        description:
+          type: string
+          description: 规则描述
+        condition:
+          type: string
+          description: 规则条件
+        level:
+          type: integer
+          description: 预警等级
+        enabled:
+          type: boolean
+          description: 是否启用
+        priority:
+          type: integer
+          description: 规则优先级
+      required:
+        - name
+        - condition
+    
+    WarnRuleUpdateRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        name:
+          type: string
+          description: 规则名称
+        description:
+          type: string
+          description: 规则描述
+        condition:
+          type: string
+          description: 规则条件
+        level:
+          type: integer
+          description: 预警等级
+        enabled:
+          type: boolean
+          description: 是否启用
+        priority:
+          type: integer
+          description: 规则优先级
+      required:
+        - id
+    
+    WarnRulePageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/PageInfo'
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarnRule'
+    
+    WarnRuleListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WarnRule'
+    
+    # 预警信息相关模型
+    WarnInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        carId:
+          type: integer
+          description: 车辆ID
+        warnId:
+          type: integer
+          description: 预警ID
+        signalId:
+          type: integer
+          format: int64
+          description: 信号ID
+        warnTime:
+          type: string
+          format: date-time
+          description: 预警时间
+        warnLevel:
+          type: integer
+          description: 预警等级
+        warnDesc:
+          type: string
+          description: 预警描述
+        handled:
+          type: boolean
+          description: 是否已处理
+        handleTime:
+          type: string
+          format: date-time
+          description: 处理时间
+        createTime:
+          type: string
+          format: date-time
+          description: 创建时间
+    
+    WarnInfoCreateRequest:
+      type: object
+      properties:
+        carId:
+          type: integer
+          description: 车辆ID
+        warnId:
+          type: integer
+          description: 预警ID
+        signalId:
+          type: integer
+          format: int64
+          description: 信号ID
+        warnTime:
+          type: string
+          format: date-time
+          description: 预警时间
+        warnLevel:
+          type: integer
+          description: 预警等级
+        warnDesc:
+          type: string
+          description: 预警描述
+      required:
+        - carId
+        - warnId
+    
+    WarnInfoUpdateRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 主键ID
+        carId:
+          type: integer
+          description: 车辆ID
+        warnId:
+          type: integer
+          description: 预警ID
+        signalId:
+          type: integer
+          format: int64
+          description: 信号ID
+        warnTime:
+          type: string
+          format: date-time
+          description: 预警时间
+        warnLevel:
+          type: integer
+          description: 预警等级
+        warnDesc:
+          type: string
+          description: 预警描述
+        handled:
+          type: boolean
+          description: 是否已处理
+        handleTime:
+          type: string
+          format: date-time
+          description: 处理时间
+      required:
+        - id
+    
+    WarnInfoPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/PageInfo'
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarnInfo'
+    
+    WarnInfoListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WarnInfo'
+    
+    # 电池信号上传请求
+    BatterySignalUploadReq:
+      type: object
+      properties:
+        carId:
+          type: integer
+          description: 车架编号
+        warnId:
+          type: integer
+          description: 预警编号，如1表示电压差检测，2表示电流差检测。若不提供，则对所有预警规则进行检查
+          minimum: 1
+        signal:
+          type: object
+          description: 信号数据，包含电池相关指标
+        vid:
+          type: string
+          description: 车辆VID，用于双重验证
+          pattern: '^[A-Z0-9]{16}$'
+        signalTime:
+          type: string
+          format: date-time
+          description: 信号时间，不提供则使用系统当前时间
+      required:
+        - carId
+        - signal
+    
+    # 电池预警响应
+    BatteryWarnResp:
+      type: object
+      properties:
+        signal:
+          $ref: '#/components/schemas/BatterySignal'
+        parsedSignal:
+          type: object
+          description: 解析后的信号数据
+        warnings:
+          type: array
+          description: 生成的预警信息
+          items:
+            $ref: '#/components/schemas/WarnInfo'
+    
+    BatteryWarnRespListResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatteryWarnResp'
+  
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 400
+            message: "参数校验不通过：carId: 车架编号不能为空"
+            data: null
+    
+    InternalServerError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 500
+            message: "系统异常：数据库连接失败"
+            data: null 

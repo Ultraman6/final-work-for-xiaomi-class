@@ -1,0 +1,695 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Battery Warning System API",
+    "description": "API for the electric vehicle battery warning system",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/vehicle": {
+      "post": {
+        "summary": "Add vehicles (batch or single)",
+        "tags": ["Vehicle"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Vehicle"
+                }
+              },
+              "example": [
+                {
+                  "carId": 1001,
+                  "vid": "WXYZ12345678",
+                  "batteryType": "Li-ion",
+                  "mileage": 5000,
+                  "batteryHealth": 95
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicles added successfully"
+          }
+        }
+      },
+      "get": {
+        "summary": "Query vehicles with field filters",
+        "tags": ["Vehicle"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Items per page"
+          },
+          {
+            "name": "carId",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by car ID"
+          },
+          {
+            "name": "vid",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by VIN"
+          },
+          {
+            "name": "batteryType",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by battery type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle list retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update vehicles (batch or single)",
+        "tags": ["Vehicle"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Vehicle"
+                }
+              },
+              "example": [
+                {
+                  "id": 1,
+                  "carId": 1001,
+                  "vid": "WXYZ12345678",
+                  "batteryType": "Li-ion",
+                  "mileage": 6500,
+                  "batteryHealth": 92
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicles updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete vehicles (batch or single)",
+        "tags": ["Vehicle"],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "IDs of vehicles to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicles deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/battery-signal": {
+      "post": {
+        "summary": "Add battery signals (batch or single)",
+        "tags": ["Battery Signal"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignalUploadReq"
+                }
+              },
+              "example": [
+                {
+                  "carId": 1001,
+                  "warnId": 2,
+                  "signal": "{\"voltage\":3.8,\"current\":2.1,\"temperature\":35}",
+                  "signalTime": "2023-08-25T10:30:00"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Battery signals added successfully"
+          }
+        }
+      },
+      "get": {
+        "summary": "Query battery signals with field filters",
+        "tags": ["Battery Signal"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Items per page"
+          },
+          {
+            "name": "carId",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by car ID"
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "schema": { "type": "string", "format": "date-time" },
+            "description": "Filter by signal time (start)"
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "schema": { "type": "string", "format": "date-time" },
+            "description": "Filter by signal time (end)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Battery signals retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update battery signals (batch or single)",
+        "tags": ["Battery Signal"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignal"
+                }
+              },
+              "example": [
+                {
+                  "id": 1,
+                  "carId": 1001,
+                  "signalId": "SIG123456",
+                  "signalData": "{\"voltage\":3.8,\"current\":2.1,\"temperature\":36}",
+                  "signalTime": "2023-08-25T10:30:00"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Battery signals updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete battery signals (batch or single)",
+        "tags": ["Battery Signal"],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "IDs of battery signals to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Battery signals deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/warn-rule": {
+      "post": {
+        "summary": "Add warning rules (batch or single)",
+        "tags": ["Warning Rule"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnRule"
+                }
+              },
+              "example": [
+                {
+                  "warnId": 1,
+                  "warnName": "电压过高",
+                  "batteryType": "Li-ion",
+                  "rule": "{\"leftOperand\":\"voltage\",\"rightOperand\":\"threshold\",\"operator\":1,\"rules\":[{\"minValue\":0.5,\"maxValue\":null,\"includeMin\":true,\"includeMax\":false,\"level\":3}]}"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Warning rules added successfully"
+          }
+        }
+      },
+      "get": {
+        "summary": "Query warning rules with field filters",
+        "tags": ["Warning Rule"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Items per page"
+          },
+          {
+            "name": "batteryType",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by battery type"
+          },
+          {
+            "name": "warnId",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by warning ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warning rules retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update warning rules (batch or single)",
+        "tags": ["Warning Rule"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnRule"
+                }
+              },
+              "example": [
+                {
+                  "id": 1,
+                  "warnId": 1,
+                  "warnName": "电压过高",
+                  "batteryType": "Li-ion",
+                  "rule": "{\"leftOperand\":\"voltage\",\"rightOperand\":\"threshold\",\"operator\":1,\"rules\":[{\"minValue\":0.6,\"maxValue\":null,\"includeMin\":true,\"includeMax\":false,\"level\":3}]}"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Warning rules updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete warning rules (batch or single)",
+        "tags": ["Warning Rule"],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "IDs of warning rules to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warning rules deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/warn-info": {
+      "post": {
+        "summary": "Add warning information (batch or single)",
+        "tags": ["Warning Info"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnInfo"
+                }
+              },
+              "example": [
+                {
+                  "carId": 1001,
+                  "warnId": 1,
+                  "warnName": "电压过高",
+                  "warnLevel": 3,
+                  "signalId": 12345,
+                  "warnTime": "2023-08-25T10:30:00"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Warning info added successfully"
+          }
+        }
+      },
+      "get": {
+        "summary": "Query warning info with field filters",
+        "tags": ["Warning Info"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Page number"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Items per page"
+          },
+          {
+            "name": "carId",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by car ID"
+          },
+          {
+            "name": "warnLevel",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by warning level"
+          },
+          {
+            "name": "warnId",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by warning ID"
+          },
+          {
+            "name": "signalId",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Filter by signal ID"
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "schema": { "type": "string", "format": "date-time" },
+            "description": "Filter by warning time (start)"
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "schema": { "type": "string", "format": "date-time" },
+            "description": "Filter by warning time (end)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warning info retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update warning info (batch or single)",
+        "tags": ["Warning Info"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnInfo"
+                }
+              },
+              "example": [
+                {
+                  "id": 1,
+                  "carId": 1001,
+                  "warnId": 1,
+                  "warnName": "电压过高",
+                  "warnLevel": 2,
+                  "signalId": 12345,
+                  "warnTime": "2023-08-25T10:30:00"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Warning info updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete warning info (batch or single)",
+        "tags": ["Warning Info"],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "IDs of warning info to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warning info deleted successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Vehicle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Vehicle record ID (auto-generated, required for update)"
+          },
+          "carId": {
+            "type": "integer",
+            "description": "Vehicle ID (business key)"
+          },
+          "vid": {
+            "type": "string",
+            "description": "Vehicle identification number"
+          },
+          "batteryType": {
+            "type": "string",
+            "description": "Battery type"
+          },
+          "mileage": {
+            "type": "integer",
+            "description": "Vehicle mileage"
+          },
+          "batteryHealth": {
+            "type": "integer",
+            "description": "Battery health percentage"
+          }
+        }
+      },
+      "BatterySignalUploadReq": {
+        "type": "object",
+        "properties": {
+          "carId": {
+            "type": "integer",
+            "description": "Vehicle ID"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "Warning rule ID. If not provided, the signal will be checked against all rules"
+          },
+          "signal": {
+            "type": "object",
+            "description": "Signal data"
+          },
+          "vid": {
+            "type": "string",
+            "description": "Vehicle identification (for verification)"
+          },
+          "signalTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Signal timestamp"
+          }
+        },
+        "required": ["carId", "signal"]
+      },
+      "BatterySignal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Signal record ID (auto-generated, required for update)"
+          },
+          "carId": {
+            "type": "integer",
+            "description": "Vehicle ID"
+          },
+          "signalId": {
+            "type": "string",
+            "description": "Signal identifier"
+          },
+          "signalData": {
+            "type": "string",
+            "description": "Signal data in JSON format"
+          },
+          "signalTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Time when signal was generated"
+          }
+        }
+      },
+      "WarnRule": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Rule record ID (auto-generated, required for update)"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "Warning rule ID"
+          },
+          "warnName": {
+            "type": "string",
+            "description": "Warning rule name"
+          },
+          "batteryType": {
+            "type": "string",
+            "description": "Battery type this rule applies to"
+          },
+          "rule": {
+            "type": "string",
+            "description": "Rule definition in JSON format"
+          }
+        }
+      },
+      "WarnInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Warning record ID (auto-generated, required for update)"
+          },
+          "carId": {
+            "type": "integer",
+            "description": "Vehicle ID"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "Warning rule ID"
+          },
+          "warnName": {
+            "type": "string",
+            "description": "Warning name"
+          },
+          "warnLevel": {
+            "type": "integer",
+            "description": "Warning severity level"
+          },
+          "signalId": {
+            "type": "integer",
+            "description": "ID of the signal that triggered this warning"
+          },
+          "warnTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Time when warning was generated"
+          }
+        }
+      }
+    }
+  }
+}

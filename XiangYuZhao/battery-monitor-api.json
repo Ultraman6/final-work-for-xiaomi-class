@@ -1,0 +1,1368 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Xiaomi Car Battery Warning System API",
+    "description": "API documentation for Xiaomi Car Battery Warning System",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/battery-monitor",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/vehicle": {
+      "get": {
+        "summary": "查询车辆",
+        "description": "按条件查询车辆，支持动态字段过滤和分页",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页记录数",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "car_id",
+            "in": "query",
+            "description": "车辆ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vid",
+            "in": "query",
+            "description": "车辆VID",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "batteryType",
+            "in": "query",
+            "description": "电池类型",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mileage_gt",
+            "in": "query",
+            "description": "里程大于",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "mileage_lt",
+            "in": "query",
+            "description": "里程小于",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "batteryHealth_gt",
+            "in": "query",
+            "description": "电池健康度大于",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "batteryHealth_lt",
+            "in": "query",
+            "description": "电池健康度小于",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehiclePageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "新增车辆",
+        "description": "新增单个或批量车辆",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Vehicle"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新车辆",
+        "description": "更新单个或批量车辆",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Vehicle"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除车辆",
+        "description": "删除单个或批量车辆",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "车辆ID列表，多个ID用逗号分隔",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      }
+    },
+    "/api/warn_rule": {
+      "get": {
+        "summary": "查询预警规则",
+        "description": "按条件查询预警规则，支持动态字段过滤和分页",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页记录数",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "warnId",
+            "in": "query",
+            "description": "预警ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "warnName_like",
+            "in": "query",
+            "description": "预警名称（模糊匹配）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "batteryType",
+            "in": "query",
+            "description": "电池类型",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarnRulePageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "新增预警规则",
+        "description": "新增单个或批量预警规则",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnRule"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarnRuleListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新预警规则",
+        "description": "更新单个或批量预警规则",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnRule"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除预警规则",
+        "description": "删除单个或批量预警规则",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "预警规则ID列表，多个ID用逗号分隔",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      }
+    },
+    "/api/battery_signal": {
+      "get": {
+        "summary": "查询电池信号",
+        "description": "按条件查询电池信号，支持动态字段过滤和分页",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页记录数",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "carId",
+            "in": "query",
+            "description": "车辆ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "warnId",
+            "in": "query",
+            "description": "预警ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "processed",
+            "in": "query",
+            "description": "是否已处理",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "信号时间起始",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "信号时间结束",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatterySignalPageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "新增电池信号",
+        "description": "新增单个或批量电池信号",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignal"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatterySignalListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新电池信号",
+        "description": "更新单个或批量电池信号",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignal"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除电池信号",
+        "description": "删除单个或批量电池信号",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "电池信号ID列表，多个ID用逗号分隔",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      }
+    },
+    "/api/warn_info": {
+      "get": {
+        "summary": "查询预警信息",
+        "description": "按条件查询预警信息，支持动态字段过滤和分页",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页记录数",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "carId",
+            "in": "query",
+            "description": "车辆ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "warnId",
+            "in": "query",
+            "description": "预警ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "warnLevel",
+            "in": "query",
+            "description": "预警级别",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "handled",
+            "in": "query",
+            "description": "是否已处理",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "description": "预警时间起始",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "description": "预警时间结束",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarnInfoPageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "新增预警信息",
+        "description": "新增单个或批量预警信息",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnInfo"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarnInfoListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新预警信息",
+        "description": "更新单个或批量预警信息",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnInfo"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除预警信息",
+        "description": "删除单个或批量预警信息",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "预警信息ID列表，多个ID用逗号分隔",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      }
+    },
+    "/api/warn": {
+      "post": {
+        "summary": "处理电池信号并生成预警",
+        "description": "接收电池信号并进行预警处理，返回生成的预警信息",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignalUploadReq"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatteryWarnRespListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      }
+    },
+    "/api/report": {
+      "post": {
+        "summary": "上报电池信号",
+        "description": "上报电池信号但不进行预警处理",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignalUploadReq"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatterySignalListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "summary": "查询车辆预警信息",
+        "description": "根据车辆ID和其他条件查询车辆预警信息",
+        "parameters": [
+          {
+            "name": "car_id",
+            "in": "query",
+            "description": "车辆ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "warn_id",
+            "in": "query",
+            "description": "预警ID",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "min_warn_time",
+            "in": "query",
+            "description": "最小预警时间",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "max_warn_time",
+            "in": "query",
+            "description": "最大预警时间",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "handled",
+            "in": "query",
+            "description": "是否已处理",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarnInfoListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "车辆不存在"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BaseResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "object",
+            "description": "数据内容"
+          }
+        }
+      },
+      "BooleanResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "boolean",
+            "description": "操作结果"
+          }
+        }
+      },
+      "Vehicle": {
+        "type": "object",
+        "properties": {
+          "carId": {
+            "type": "integer",
+            "description": "车辆ID"
+          },
+          "vid": {
+            "type": "string",
+            "description": "车辆VID"
+          },
+          "batteryType": {
+            "type": "string",
+            "description": "电池类型"
+          },
+          "mileage": {
+            "type": "number",
+            "description": "里程"
+          },
+          "batteryHealth": {
+            "type": "number",
+            "description": "电池健康度"
+          }
+        }
+      },
+      "WarnRule": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "规则ID"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "预警ID"
+          },
+          "warnName": {
+            "type": "string",
+            "description": "预警名称"
+          },
+          "batteryType": {
+            "type": "string",
+            "description": "电池类型"
+          },
+          "rule": {
+            "type": "string",
+            "description": "规则定义"
+          }
+        }
+      },
+      "BatterySignal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "信号ID"
+          },
+          "carId": {
+            "type": "integer",
+            "description": "车辆ID"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "预警ID"
+          },
+          "signalData": {
+            "type": "string",
+            "description": "信号数据"
+          },
+          "signalTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "信号时间"
+          },
+          "processed": {
+            "type": "boolean",
+            "description": "是否已处理"
+          },
+          "processTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "处理时间"
+          }
+        }
+      },
+      "WarnInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "预警信息ID"
+          },
+          "carId": {
+            "type": "integer",
+            "description": "车辆ID"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "预警ID"
+          },
+          "warnName": {
+            "type": "string",
+            "description": "预警名称"
+          },
+          "warnLevel": {
+            "type": "integer",
+            "description": "预警级别"
+          },
+          "signalId": {
+            "type": "integer",
+            "description": "信号ID"
+          },
+          "signalTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "信号时间"
+          },
+          "warnTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "预警时间"
+          },
+          "warnDetail": {
+            "type": "string",
+            "description": "预警详情"
+          },
+          "handled": {
+            "type": "boolean",
+            "description": "是否已处理"
+          },
+          "handleTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "处理时间"
+          },
+          "handleRemark": {
+            "type": "string",
+            "description": "处理备注"
+          }
+        }
+      },
+      "BatterySignalUploadReq": {
+        "type": "object",
+        "properties": {
+          "carId": {
+            "type": "integer",
+            "description": "车辆ID"
+          },
+          "vid": {
+            "type": "string",
+            "description": "车辆VID（用于验证）"
+          },
+          "warnId": {
+            "type": "integer",
+            "description": "预警ID，不提供则对所有预警规则进行检查"
+          },
+          "signal": {
+            "type": "object",
+            "description": "信号数据"
+          },
+          "signalTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "信号时间"
+          }
+        },
+        "required": ["carId", "signal"]
+      },
+      "BatteryWarnResp": {
+        "type": "object",
+        "properties": {
+          "signal": {
+            "$ref": "#/components/schemas/BatterySignal"
+          },
+          "parsedSignal": {
+            "type": "object",
+            "description": "解析后的信号数据"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarnInfo"
+            },
+            "description": "生成的预警列表"
+          }
+        }
+      },
+      "PageInfo": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "integer",
+            "description": "当前页"
+          },
+          "size": {
+            "type": "integer",
+            "description": "每页大小"
+          },
+          "total": {
+            "type": "integer",
+            "description": "总记录数"
+          },
+          "pages": {
+            "type": "integer",
+            "description": "总页数"
+          }
+        }
+      },
+      "VehiclePageResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "records": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Vehicle"
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "size": {
+                "type": "integer"
+              },
+              "current": {
+                "type": "integer"
+              },
+              "pages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "VehicleListResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Vehicle"
+            }
+          }
+        }
+      },
+      "WarnRulePageResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "records": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnRule"
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "size": {
+                "type": "integer"
+              },
+              "current": {
+                "type": "integer"
+              },
+              "pages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "WarnRuleListResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarnRule"
+            }
+          }
+        }
+      },
+      "BatterySignalPageResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "records": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BatterySignal"
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "size": {
+                "type": "integer"
+              },
+              "current": {
+                "type": "integer"
+              },
+              "pages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "BatterySignalListResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BatterySignal"
+            }
+          }
+        }
+      },
+      "WarnInfoPageResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "records": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WarnInfo"
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "size": {
+                "type": "integer"
+              },
+              "current": {
+                "type": "integer"
+              },
+              "pages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "WarnInfoListResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarnInfo"
+            }
+          }
+        }
+      },
+      "BatteryWarnRespListResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "状态码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BatteryWarnResp"
+            }
+          }
+        }
+      }
+    }
+  }
+} 

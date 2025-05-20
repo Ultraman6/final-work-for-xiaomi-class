@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.xiangyuzhao.mapper.BatterySignalMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.xiangyuzhao.entity.BatterySignal">
+        <id column="id" property="id" />
+        <result column="car_id" property="carId" />
+        <result column="warn_id" property="warnId" />
+        <result column="signal_data" property="signalData" />
+        <result column="signal_time" property="signalTime" />
+        <result column="processed" property="processed" />
+        <result column="process_time" property="processTime" />
+    </resultMap>
+    
+    <!-- Find all signals for a specific vehicle -->
+    <select id="findByCarId" parameterType="integer" resultMap="BaseResultMap">
+        SELECT * FROM battery_signal 
+        WHERE car_id = #{carId}
+        ORDER BY signal_time DESC
+    </select>
+    
+    <!-- Find the most recent signal for a vehicle -->
+    <select id="findLatestByCarId" parameterType="integer" resultMap="BaseResultMap">
+        SELECT * FROM battery_signal 
+        WHERE car_id = #{carId}
+        ORDER BY signal_time DESC
+        LIMIT 1
+    </select>
+    
+    <!-- Find signals within a time range -->
+    <select id="findByCarIdAndTimeRange" resultMap="BaseResultMap">
+        SELECT * FROM battery_signal 
+        WHERE car_id = #{carId}
+        AND signal_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY signal_time DESC
+    </select>
+    
+    <!-- Save multiple signals at once (batch) -->
+    <insert id="saveSignalBatch" parameterType="java.util.List">
+        INSERT INTO battery_signal (car_id, warn_id, signal_data, signal_time, processed) 
+        VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (#{item.carId}, #{item.warnId}, #{item.signalData}, #{item.signalTime}, #{item.processed})
+        </foreach>
+    </insert>
+    
+    <!-- Get signals by car ID with pagination -->
+    <select id="findByCarIdWithPagination" resultMap="BaseResultMap">
+        SELECT * FROM battery_signal
+        WHERE car_id = #{carId}
+        ORDER BY signal_time DESC
+    </select>
+    
+    <!-- Delete signals before a certain date for a car -->
+    <delete id="deleteSignalsBeforeDate">
+        DELETE FROM battery_signal
+        WHERE car_id = #{carId}
+        AND signal_time &lt; #{beforeDate}
+    </delete>
+    
+    <!-- 批量更新信号为已处理状态 -->
+    <update id="updateBatchSignalProcessed">
+        UPDATE battery_signal
+        SET processed = 1, process_time = #{processTime}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+    
+    <!-- Define custom SQL operations here if needed -->
+    
+</mapper> 

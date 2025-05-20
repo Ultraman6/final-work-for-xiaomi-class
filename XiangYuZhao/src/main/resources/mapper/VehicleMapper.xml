@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.xiangyuzhao.mapper.VehicleMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.xiangyuzhao.entity.Vehicle">
+        <id column="car_id" property="carId" />
+        <result column="vid" property="vid" />
+        <result column="battery_type" property="batteryType" />
+        <result column="mileage" property="mileage" />
+        <result column="battery_health" property="batteryHealth" />
+    </resultMap>
+    
+    <!-- Find vehicle by VID -->
+    <select id="findByVid" parameterType="string" resultMap="BaseResultMap">
+        SELECT * FROM vehicle WHERE vid = #{vid}
+    </select>
+    
+    <!-- Find vehicle by car ID -->
+    <select id="findByCarId" parameterType="integer" resultMap="BaseResultMap">
+        SELECT * FROM vehicle WHERE car_id = #{carId}
+    </select>
+    
+    <!-- Update vehicle battery health -->
+    <update id="updateBatteryHealth">
+        UPDATE vehicle SET battery_health = #{batteryHealth} WHERE car_id = #{carId}
+    </update>
+    
+    <!-- Update vehicle mileage -->
+    <update id="updateMileage">
+        UPDATE vehicle SET mileage = #{mileage} WHERE car_id = #{carId}
+    </update>
+    
+    <!-- Find vehicles by battery type -->
+    <select id="findByBatteryType" parameterType="string" resultMap="BaseResultMap">
+        SELECT * FROM vehicle WHERE battery_type = #{batteryType}
+    </select>
+    
+    <!-- Find vehicles with pagination -->
+    <select id="selectVehiclePage" resultMap="BaseResultMap">
+        SELECT * FROM vehicle
+        ORDER BY car_id DESC
+    </select>
+    
+    <!-- Define custom SQL operations here if needed -->
+    
+</mapper> 
